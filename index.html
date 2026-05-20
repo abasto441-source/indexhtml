@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>NRAM360</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --c:#75C5D5;--cd:#4A9BAB;--cl:#E8F7FA;--cm:#B8E5ED;
+  --gd:#3C3C3B;--nt:#232323;
+  --bg:#F4F5F6;--bg2:#fff;--bg3:#ECEEF0;
+  --bo:#D8DADC;--bo2:#C4C7CA;
+  --t1:#232323;--t2:#5A5C5E;--t3:#8A8C8E;
+  --ok:#2EAB7B;--ok2:#E6F7F0;
+  --wa:#D97B00;--wa2:#FEF3E2;
+  --er:#D43F3F;--er2:#FDEAEA;
+  --in:#185FA5;--in2:#E6F1FB;
+  --r:8px;--rl:12px;--rx:16px;
+  --sh:0 1px 4px rgba(0,0,0,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);font-size:14px}
+
+/* ── LOGIN ── */
+#loginScreen{position:fixed;inset:0;background:var(--gd);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
+.lc{background:#fff;border-radius:var(--rx);padding:36px 32px;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,.3)}
+.llogo{text-align:center;margin-bottom:26px}
+.lbrand{font-size:28px;font-weight:700;color:var(--nt);letter-spacing:-1px}.lbrand span{color:var(--c)}
+.ltag{font-size:12px;color:var(--t3);margin-top:4px}
+
+.lf .fg{display:flex;flex-direction:column;gap:4px;margin-bottom:13px}
+.lf label{font-size:12px;color:var(--t2);font-weight:500}
+.lf input{padding:10px 12px;border:1px solid var(--bo);border-radius:var(--r);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--t1);background:#fff}
+.lf input:focus{outline:none;border-color:var(--c)}
+.lbtn{width:100%;padding:11px;background:var(--c);color:#fff;border:none;border-radius:var(--r);font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:4px}
+.lbtn:hover,.lbtn:active{background:var(--cd)}
+.lerr{font-size:12px;color:var(--er);text-align:center;margin-top:8px;display:none}
+.ldemo{margin-top:14px;font-size:11px;color:#AAA;text-align:center;line-height:1.6}
+
+/* ── APP ── */
+#app{display:none;flex-direction:column;height:100vh;overflow:hidden}
+#app.vis{display:flex}
+
+/* ── TOPBAR ── */
+.tb{background:var(--gd);display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:50px;flex-shrink:0}
+.tbrand{font-size:16px;font-weight:700;color:#fff;letter-spacing:-0.5px}.tbrand span{color:var(--c)}
+.tbr{display:flex;align-items:center;gap:10px}
+.tbu{display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.8)}
+.tbu i{font-size:18px;color:var(--cm)}
+.tbrole{font-size:11px;background:var(--c);color:#fff;padding:2px 8px;border-radius:99px;font-weight:500}
+.lgout{padding:5px 11px;font-size:12px;border-radius:var(--r);border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.7);cursor:pointer;font-family:'DM Sans',sans-serif}
+.lgout:hover{background:rgba(255,255,255,.1);color:#fff}
+/* mobile menu btn */
+.mbtn{display:none;background:transparent;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px}
+
+/* ── LAYOUT ── */
+.layout{display:flex;flex:1;overflow:hidden;position:relative}
+
+/* ── SIDEBAR ── */
+.sb{width:196px;background:var(--bg2);border-right:1px solid var(--bo);padding:10px 8px;overflow-y:auto;flex-shrink:0;transition:transform .25s}
+.sc{font-size:10px;color:var(--t3);padding:10px 8px 4px;text-transform:uppercase;letter-spacing:.08em;font-weight:500}
+.si{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r);cursor:pointer;font-size:13px;color:var(--t2);border:none;background:transparent;width:100%;text-align:left;transition:all .12s;font-family:'DM Sans',sans-serif}
+.si:hover,.si.on{background:var(--cl);color:var(--cd);font-weight:500}
+.si.on i,.si:hover i{color:var(--c)}
+.si i{font-size:16px;width:18px;flex-shrink:0;color:var(--t3)}
+.sbx{font-size:11px;padding:2px 6px;border-radius:99px;margin-left:auto;font-weight:500}
+/* badge colors */
+.bg{background:var(--ok2);color:#1A7A55}.ba{background:var(--wa2);color:var(--wa)}.br{background:var(--er2);color:var(--er)}.bb{background:var(--in2);color:var(--in)}.bgy{background:var(--bg3);color:var(--t2)}.bc{background:var(--cl);color:var(--cd)}
+
+/* overlay for mobile sidebar */
+.sbover{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:50}
+.sbover.vis{display:block}
+
+/* ── CONTENT ── */
+.ct{flex:1;padding:18px;overflow-y:auto;background:var(--bg)}
+
+/* ── CARD / TABLE ── */
+.card{background:var(--bg2);border:1px solid var(--bo);border-radius:var(--rl);padding:15px;margin-bottom:14px;box-shadow:var(--sh)}
+.ctit{font-size:14px;font-weight:500;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;color:var(--nt);flex-wrap:wrap;gap:8px}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.pt{font-size:18px;font-weight:600;color:var(--nt)}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px}
+.met{background:var(--bg2);border-radius:var(--rl);padding:13px;border:1px solid var(--bo)}
+.ml{font-size:12px;color:var(--t2);margin-bottom:5px}
+.mv{font-size:21px;font-weight:600;color:var(--nt)}
+.ms{font-size:11px;color:var(--t3);margin-top:2px}
+.tbl-wrap{overflow-x:auto;border-radius:var(--rl);border:1px solid var(--bo)}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:500px}
+th{text-align:left;padding:9px 10px;color:var(--t2);font-weight:500;border-bottom:1px solid var(--bo);font-size:12px;background:var(--bg3);white-space:nowrap}
+td{padding:10px 10px;border-bottom:1px solid var(--bo);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFBFC}
+.pb{height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;margin-top:3px;min-width:60px}
+.pf{height:100%;border-radius:99px}
+.ar{display:flex;gap:5px;flex-wrap:wrap}
+.ib{width:28px;height:28px;border-radius:var(--r);border:1px solid var(--bo);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--t2);font-size:15px;transition:all .12s;flex-shrink:0}
+.ib:hover{background:var(--bg3);color:var(--t1)}
+.toggle{width:34px;height:18px;border-radius:99px;border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--c)}.toggle.off{background:var(--bo)}
+.toggle::after{content:'';position:absolute;width:12px;height:12px;background:#fff;border-radius:50%;top:3px;transition:left .2s}
+.toggle.on::after{left:19px}.toggle.off::after{left:3px}
+
+/* ── BUTTONS ── */
+.btn{padding:7px 13px;font-size:13px;border-radius:var(--r);cursor:pointer;border:1px solid var(--bo);background:#fff;color:var(--t1);display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;transition:all .12s;white-space:nowrap}
+.btn:hover{background:var(--bg3)}
+.bp{background:var(--c);color:#fff;border-color:var(--c)}.bp:hover{background:var(--cd);border-color:var(--cd)}
+.bd{background:var(--er);color:#fff;border-color:var(--er)}.bd:hover{background:#B03030}
+.bsuc{background:var(--ok);color:#fff;border-color:var(--ok)}
+.bwa{background:#25D366;color:#fff;border-color:#25D366}
+
+/* ── FORMS ── */
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.fg label{font-size:12px;color:var(--t2);font-weight:500}
+.fg input,.fg select,.fg textarea{padding:8px 11px;font-size:13px;border:1px solid var(--bo);border-radius:var(--r);background:#fff;color:var(--t1);font-family:'DM Sans',sans-serif;width:100%}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--c)}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.fr{grid-template-columns:1fr}}
+
+/* ── STATUS ROWS ── */
+.dbr{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bo);font-size:13px;gap:8px}
+.dbr:last-child{border-bottom:none}
+.sd{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;flex-shrink:0}
+.dg{background:var(--ok)}.da{background:var(--wa)}.dr{background:var(--er)}.dgy{background:#AAA}
+
+/* ── TICKETS ── */
+.tc{background:var(--bg2);border:1px solid var(--bo);border-radius:var(--r);padding:12px 14px;margin-bottom:9px;cursor:pointer;transition:background .12s}
+.tc:hover{background:var(--bg3)}
+.tk-o{border-left:3px solid var(--er)}.tk-p{border-left:3px solid var(--wa)}.tk-c{border-left:3px solid var(--ok)}
+
+/* ── PAY CARDS ── */
+.payw{background:var(--bg2);border:1px solid var(--bo);border-left:3px solid var(--wa);border-radius:0 var(--r) var(--r) 0;padding:12px 14px;margin-bottom:10px}
+.payok{background:var(--bg2);border:1px solid var(--bo);border-left:3px solid var(--ok);border-radius:0 var(--r) var(--r) 0;padding:12px 14px;margin-bottom:10px}
+.payer{background:var(--bg2);border:1px solid var(--bo);border-left:3px solid var(--er);border-radius:0 var(--r) var(--r) 0;padding:12px 14px;margin-bottom:10px}
+
+/* ── TIMELINE ── */
+.tl{display:flex;flex-direction:column;gap:12px}
+.tli{display:flex;gap:10px;align-items:flex-start;font-size:13px}
+.tld{width:8px;height:8px;border-radius:50%;background:var(--c);flex-shrink:0;margin-top:5px}
+.tld.w{background:var(--wa)}.tld.e{background:var(--er)}
+.tlt{font-size:11px;color:var(--t3);margin-top:2px}
+
+/* ── INFO BOXES ── */
+.ibox{background:var(--cl);border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--cd);margin-bottom:10px}
+.wbox{background:var(--wa2);border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--wa)}
+.ebox{background:var(--er2);border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--er);text-align:center}
+
+/* ── QR ── */
+.qrbox{background:#fff;border:1px solid var(--bo);border-radius:var(--r);padding:6px;display:inline-block}
+.qrbox canvas,.qrbox img{display:block}
+.qr-upload{border:2px dashed var(--bo2);border-radius:var(--r);padding:14px;text-align:center;cursor:pointer;transition:border .15s;position:relative;overflow:hidden}
+.qr-upload:hover{border-color:var(--c)}
+.qr-upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.qr-img-preview{width:100px;height:100px;object-fit:cover;border-radius:var(--r);border:1px solid var(--bo)}
+
+/* ── MODAL ── */
+#mw{display:none;position:fixed;inset:0;background:rgba(35,35,35,.55);z-index:2000;align-items:flex-start;justify-content:center;padding:20px 12px;overflow-y:auto}
+#mw.open{display:flex}
+.modal{background:#fff;border-radius:var(--rx);border:1px solid var(--bo);padding:22px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.2);margin:auto}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.mt2{font-size:15px;font-weight:600;color:var(--nt)}
+
+/* ── GRID ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:600px){.g2{grid-template-columns:1fr}}
+
+/* ── EXPIRY ALERT ROW ── */
+.exp-row{background:#fff;border:1px solid var(--bo);border-radius:var(--r);padding:11px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.exp-row.urgent{border-left:3px solid var(--er)}
+.exp-row.soon{border-left:3px solid var(--wa)}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .sb{position:fixed;top:50px;left:0;bottom:0;z-index:60;transform:translateX(-100%);width:220px}
+  .sb.open{transform:translateX(0)}
+  .mbtn{display:block}
+  .ct{padding:14px}
+  .ph{margin-bottom:14px}
+  .pt{font-size:16px}
+  table{font-size:12px}
+  th,td{padding:8px 8px}
+  .met{padding:11px}
+  .mv{font-size:18px}
+}
+@media(max-width:380px){
+  .lc{padding:26px 20px}
+  .modal{padding:16px}
+}
+code{font-family:'DM Mono',monospace;font-size:11.5px;background:var(--bg3);padding:2px 7px;border-radius:4px;color:var(--gd)}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="lc">
+    <div class="llogo">
+      <div class="lbrand">NRAM<span>360</span></div>
+      <div class="ltag">Panel de gestión SaaS</div>
+    </div>
+
+    <div class="lf">
+      <div class="fg"><label>Correo</label><input type="email" id="lem" placeholder="correo@nram360.io" autocomplete="username"></div>
+      <div class="fg"><label>Contraseña</label><input type="password" id="lps" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="lbtn" onclick="doLogin()">Ingresar <i class="ti ti-arrow-right"></i></button>
+      <div class="lerr" id="lerr">Credenciales incorrectas.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="tb">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="mbtn" onclick="toggleSidebar()"><i class="ti ti-menu-2"></i></button>
+      <div class="tbrand">NRAM<span>360</span></div>
+    </div>
+    <div class="tbr">
+      <div class="tbu"><i class="ti ti-user-circle"></i><span id="tbU">–</span></div>
+      <span class="tbrole" id="tbR">–</span>
+      <button class="lgout" onclick="doLogout()"><i class="ti ti-logout" style="font-size:13px"></i> Salir</button>
+    </div>
+  </div>
+  <div class="layout">
+    <div class="sbover" id="sbover" onclick="closeSidebar()"></div>
+    <div class="sb" id="sb"></div>
+    <div class="ct" id="content"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="mw"><div class="modal">
+  <div class="mh"><span class="mt2" id="mt2">–</span><button class="ib" onclick="closeModal()"><i class="ti ti-x"></i></button></div>
+  <div id="mbody"></div>
+</div></div>
+
+<script>
+// ══════════════════════════════════
+// DATA
+// ══════════════════════════════════
+const S={
+  role:null,user:null,view:null,loginRole:'superadmin',
+  qrMode:'generate', // 'generate' | 'image'
+  qrImageDataUrl: null,
+  qr:{alias:'NRAM360 Bolivia',bank:'Banco Unión',account:'1234567890',currency:'BOB'},
+  plans:[
+    {id:1,name:'Starter',price:79,ram:1024,disk:10,desc:'Ideal para PYMES'},
+    {id:2,name:'Professional',price:149,ram:2048,disk:20,desc:'Empresas en crecimiento'},
+    {id:3,name:'Enterprise',price:299,ram:4096,disk:50,desc:'Grandes operaciones'},
+  ],
+  companies:[
+    {id:1,name:'Distribuidora Alfa',domain:'alfa.nram360.io',plan:'Professional',status:'active',ram:2048,ramUsed:1340,disk:20,diskUsed:11.2,db:'alfa_prod',version:'17.0',ip:'10.0.1.2',ssl:true,backups:true,nextPayment:'2025-05-20',amount:149,created:'2024-01-15',wa:'59171234567',notes:'Cliente desde ene 2024',adminEmail:'alfa@nram360.io',adminPass:'alfa123'},
+    {id:2,name:'Tech Solutions LLC',domain:'tech.nram360.io',plan:'Starter',status:'active',ram:1024,ramUsed:610,disk:10,diskUsed:4.8,db:'tech_prod',version:'17.0',ip:'10.0.1.3',ssl:true,backups:false,nextPayment:'2025-06-01',amount:79,created:'2024-03-02',wa:'59172345678',notes:'',adminEmail:'tech@nram360.io',adminPass:'tech123'},
+    {id:3,name:'Constructora Norteña',domain:'norte.nram360.io',plan:'Enterprise',status:'suspended',ram:4096,ramUsed:0,disk:50,diskUsed:23.1,db:'norte_prod',version:'16.0',ip:'10.0.1.4',ssl:false,backups:true,nextPayment:'2025-05-16',amount:299,created:'2023-11-08',wa:'59173456789',notes:'Suspendido por pago vencido',adminEmail:'norte@nram360.io',adminPass:'norte123'},
+    {id:4,name:'Café Digital Ltda.',domain:'cafe.nram360.io',plan:'Starter',status:'disabled',ram:1024,ramUsed:0,disk:10,diskUsed:2.1,db:'cafe_prod',version:'17.0',ip:'10.0.1.5',ssl:false,backups:false,nextPayment:'—',amount:79,created:'2024-05-20',wa:'59174567890',notes:'Cuenta cancelada',adminEmail:'cafe@nram360.io',adminPass:'cafe123'},
+  ],
+  payments:[
+    {id:'PAY-001',cid:1,company:'Distribuidora Alfa',plan:'Professional',amount:149,date:'2025-05-01',ref:'TRF-8821',status:'approved',voucher:'comprobante_mayo.jpg',note:'Pago QR mayo'},
+    {id:'PAY-002',cid:2,company:'Tech Solutions LLC',plan:'Starter',amount:79,date:'2025-05-03',ref:'TRF-9012',status:'pending',voucher:'voucher_ts.png',note:'Pendiente revisión'},
+    {id:'PAY-003',cid:3,company:'Constructora Norteña',plan:'Enterprise',amount:299,date:'2025-04-20',ref:'',status:'pending',voucher:'',note:'Sin comprobante'},
+    {id:'PAY-004',cid:4,company:'Café Digital Ltda.',plan:'Starter',amount:79,date:'2025-03-01',ref:'',status:'rejected',voucher:'',note:'Cuenta cancelada'},
+  ],
+  tickets:[
+    {id:'TK-001',cid:1,company:'Distribuidora Alfa',subject:'Error exportar reportes PDF',status:'open',priority:'high',date:'2025-05-13',msg:'Al generar reportes en PDF aparece error 500. Urgente.'},
+    {id:'TK-002',cid:2,company:'Tech Solutions LLC',subject:'Solicito más espacio en disco',status:'pending',priority:'mid',date:'2025-05-12',msg:'Necesitamos ampliar el disco a 20GB.'},
+    {id:'TK-003',cid:3,company:'Constructora Norteña',subject:'Reactivar cuenta suspendida',status:'open',priority:'high',date:'2025-05-11',msg:'Ya realizamos el pago, favor reactivar.'},
+    {id:'TK-004',cid:1,company:'Distribuidora Alfa',subject:'Consulta sobre backup',status:'closed',priority:'low',date:'2025-05-08',msg:'¿Cada cuánto se realizan los backups automáticos?'},
+  ],
+  _nextPid:5,_nextTid:5
+};
+
+// ══════════════════════════════════
+// AUTH
+// ══════════════════════════════════
+const CREDS={
+  superadmin:{email:'super@nram360.io',pass:'super123',name:'Super Admin'},
+  admin:null // dynamic from companies
+};
+
+
+
+// ── API CONFIG ──────────────────────────────────────
+const API = window.location.origin + '/api';
+let AUTH_TOKEN = localStorage.getItem('nram360_token') || null;
+
+function apiHeaders(){
+  return {'Content-Type':'application/json', 'Authorization': 'Bearer '+AUTH_TOKEN};
+}
+
+async function apiCall(method, path, body){
+  try {
+    const opts = {method, headers: apiHeaders()};
+    if(body) opts.body = JSON.stringify(body);
+    const res = await fetch(API + path, opts);
+    const data = await res.json();
+    if(res.status === 401){ doLogout(); return null; }
+    return data;
+  } catch(e) {
+    console.error('API error:', e);
+    return null;
+  }
+}
+
+async // ── API CONFIG ──────────────────────────────────────
+const API=window.location.origin+'/api';
+let AUTH_TOKEN=localStorage.getItem('nram360_token')||null;
+function apiH(){return{'Content-Type':'application/json','Authorization':'Bearer '+AUTH_TOKEN};}
+async function apiCall(method,path,body){
+  try{
+    const opts={method,headers:apiH()};
+    if(body)opts.body=JSON.stringify(body);
+    const res=await fetch(API+path,opts);
+    if(res.status===401){doLogout();return null;}
+    return await res.json();
+  }catch(e){console.error('API:',e);return null;}
+}
+async function loadAllData(){
+  try{
+    const [co,pa,ti,pl,qr]=await Promise.all([
+      S.role==='superadmin'?apiCall('GET','/companies'):Promise.resolve([]),
+      apiCall('GET','/payments'),
+      apiCall('GET','/tickets'),
+      apiCall('GET','/plans'),
+      apiCall('GET','/qr'),
+    ]);
+    if(co&&co.length) S.companies=co.map(c=>({...c,ram:c.ram_total,ramUsed:c.ram_used,disk:c.disk_total,diskUsed:parseFloat(c.disk_used||0),db:c.db_name,version:c.server_version,ip:c.ip_address||'',ssl:c.ssl_active,backups:c.backups_active,nextPayment:c.next_payment?.slice(0,10)||'—',amount:parseFloat(c.monthly_amount),wa:c.whatsapp||'',notes:c.notes||'',adminEmail:c.admin_email||'',adminPass:'***'}));
+    if(pa) S.payments=pa.map(p=>({...p,id:'PAY-'+p.id,cid:p.company_id,company:p.company_name||p.company,plan:p.plan_name||p.plan,amount:parseFloat(p.amount),date:p.payment_date?.slice(0,10)||p.date,status:p.status}));
+    if(ti) S.tickets=ti.map(t=>({...t,id:'TK-'+t.id,cid:t.company_id,company:t.company_name||t.company,msg:t.message||t.msg}));
+    if(pl) S.plans=pl.map(p=>({...p,price:parseFloat(p.price),ram:p.ram_mb,disk:p.disk_gb}));
+    if(qr){S.qr.bank=qr.bank;S.qr.alias=qr.alias;S.qr.account=qr.account;S.qr.currency=qr.currency;S.qrMode=qr.qr_mode||'generate';if(qr.qr_image)S.qrImageDataUrl=qr.qr_image;}
+    if(S.role!=='superadmin'&&S._myCompany){
+      const c=S._myCompany;
+      S.companies=[{...c,ram:c.ram_total,ramUsed:c.ram_used,disk:c.disk_total,diskUsed:parseFloat(c.disk_used||0),db:c.db_name,version:c.server_version,ip:c.ip_address||'',ssl:c.ssl_active,backups:c.backups_active,nextPayment:c.next_payment?.slice(0,10)||'—',amount:parseFloat(c.monthly_amount),wa:c.whatsapp||'',notes:c.notes||'',adminEmail:c.admin_email||''}];
+    }
+  }catch(e){console.error('loadAllData:',e);}
+}
+async function checkAutoLogin(){
+  const token=localStorage.getItem('nram360_token');
+  if(!token)return;
+  AUTH_TOKEN=token;
+  const me=await apiCall('GET','/auth/me');
+  if(!me||!me.id){localStorage.removeItem('nram360_token');AUTH_TOKEN=null;return;}
+  S.role=me.role;S.user={...me,cid:me.company_id};
+  if(me.company_id){const co=await apiCall('GET','/companies/'+me.company_id);if(co)S._myCompany=co;}
+  S.view=me.role==='superadmin'?'dashboard':'my-dash';
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').classList.add('vis');
+  document.getElementById('tbU').textContent=me.name;
+  document.getElementById('tbR').textContent=me.role==='superadmin'?'Super Admin':'Admin / Cliente';
+  await loadAllData();render();
+}
+function doLogin(){
+  const em=document.getElementById('lem').value.trim().toLowerCase();
+  const ps=document.getElementById('lps').value.trim();
+  if(!em||!ps){document.getElementById('lerr').style.display='block';return;}
+  const lbtn=document.querySelector('.lbtn');
+  if(lbtn){lbtn.textContent='Ingresando...';lbtn.disabled=true;}
+  fetch(window.location.origin+'/api/auth/login',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({email:em,password:ps})
+  }).then(r=>r.json()).then(data=>{
+    if(!data.token){
+      document.getElementById('lerr').style.display='block';
+      if(lbtn){lbtn.textContent='Ingresar';lbtn.disabled=false;}
+      return;
+    }
+    AUTH_TOKEN=data.token;
+    localStorage.setItem('nram360_token',data.token);
+    document.getElementById('lerr').style.display='none';
+    S.role=data.user.role; S.user={...data.user,cid:data.user.company_id};
+    if(data.company) S._myCompany=data.company;
+    S.view=data.user.role==='superadmin'?'dashboard':'my-dash';
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('app').classList.add('vis');
+    document.getElementById('tbU').textContent=data.user.name;
+    document.getElementById('tbR').textContent=data.user.role==='superadmin'?'Super Admin':'Admin / Cliente';
+    loadAllData().then(()=>render());
+    if(lbtn){lbtn.textContent='Ingresar';lbtn.disabled=false;}
+  }).catch(e=>{
+    document.getElementById('lerr').textContent='Error de conexión';
+    document.getElementById('lerr').style.display='block';
+    if(lbtn){lbtn.textContent='Ingresar';lbtn.disabled=false;}
+  });
+}
+
+// Cargar todos los datos desde la API
+async function loadAllData(){
+  try {
+    const [companies, payments, tickets, plans, qr] = await Promise.all([
+      S.role==='superadmin' ? apiCall('GET','/companies') : Promise.resolve([]),
+      apiCall('GET','/payments'),
+      apiCall('GET','/tickets'),
+      apiCall('GET','/plans'),
+      apiCall('GET','/qr'),
+    ]);
+    if(companies) S.companies = companies;
+    if(payments)  S.payments  = payments.map(p=>({...p,id:'PAY-'+p.id,cid:p.company_id,company:p.company_name,plan:p.plan_name,amount:parseFloat(p.amount),date:p.payment_date?.slice(0,10)}));
+    if(tickets)   S.tickets   = tickets.map(t=>({...t,id:'TK-'+t.id,cid:t.company_id,company:t.company_name}));
+    if(plans)     S.plans     = plans.map(p=>({...p,price:parseFloat(p.price),ram:p.ram_mb,disk:p.disk_gb}));
+    if(qr)        { S.qr.bank=qr.bank; S.qr.alias=qr.alias; S.qr.account=qr.account; S.qr.currency=qr.currency; S.qrMode=qr.qr_mode; if(qr.qr_image) S.qrImageDataUrl=qr.qr_image; }
+    if(S.role!=='superadmin' && S._myCompany) {
+      S.companies = [S._myCompany];
+    }
+  } catch(e){ console.error('loadAllData error:', e); }
+}
+
+// Auto-login si hay token guardado
+async function checkAutoLogin(){
+  const token = localStorage.getItem('nram360_token');
+  if(!token) return;
+  AUTH_TOKEN = token;
+  const me = await apiCall('GET','/auth/me');
+  if(!me || !me.id) { localStorage.removeItem('nram360_token'); AUTH_TOKEN=null; return; }
+  S.role = me.role; S.user = {...me, cid: me.company_id};
+  if(me.company_id){
+    const co = await apiCall('GET','/companies/'+me.company_id);
+    if(co) S._myCompany = co;
+  }
+  S.view = me.role==='superadmin'?'dashboard':'my-dash';
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').classList.add('vis');
+  document.getElementById('tbU').textContent = me.name;
+  document.getElementById('tbR').textContent = me.role==='superadmin'?'Super Admin':'Admin / Cliente';
+  await loadAllData();
+  render();
+}
+
+function doLogout(){
+  AUTH_TOKEN=null;
+  localStorage.removeItem('nram360_token');
+  S.role=null; S.user=null; S.companies=[]; S.payments=[]; S.tickets=[];
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('app').classList.remove('vis');
+  document.getElementById('lem').value='';
+  document.getElementById('lps').value='';
+}
+
+// ══════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════
+function toggleSidebar(){
+  document.getElementById('sb').classList.toggle('open');
+  document.getElementById('sbover').classList.toggle('vis');
+}
+function closeSidebar(){
+  document.getElementById('sb').classList.remove('open');
+  document.getElementById('sbover').classList.remove('vis');
+}
+
+const SA_MENU=[
+  {s:'Principal'},
+  {id:'dashboard',ic:'ti-dashboard',lb:'Dashboard'},
+  {id:'companies',ic:'ti-building',lb:'Empresas',bd:()=>S.companies.length},
+  {id:'databases',ic:'ti-database',lb:'Bases de datos'},
+  {s:'Infraestructura'},
+  {id:'docker',ic:'ti-brand-docker',lb:'Docker'},
+  {id:'domains',ic:'ti-world',lb:'Dominios & SSL'},
+  {id:'backups',ic:'ti-database-export',lb:'Backups'},
+  {id:'monitor',ic:'ti-activity',lb:'Monitoreo'},
+  {s:'Negocio'},
+  {id:'plans',ic:'ti-package',lb:'Planes'},
+  {id:'payments',ic:'ti-credit-card',lb:'Pagos QR',bd:()=>S.payments.filter(p=>p.status==='pending').length},
+  {id:'tickets',ic:'ti-ticket',lb:'Tickets',bd:()=>S.tickets.filter(t=>t.status!='closed').length},
+];
+
+const CL_MENU=[
+  {s:'Mi cuenta'},
+  {id:'my-dash',ic:'ti-home',lb:'Mi Panel'},
+  {id:'my-server',ic:'ti-server-2',lb:'Mi Servidor'},
+  {s:'Servicio'},
+  {id:'my-res',ic:'ti-chart-bar',lb:'Mis Recursos'},
+  {id:'my-dom',ic:'ti-world',lb:'Mi Dominio'},
+  {id:'my-pay',ic:'ti-credit-card',lb:'Pagos & QR'},
+  {id:'my-tix',ic:'ti-message-circle',lb:'Soporte'},
+];
+
+function nav(v){S.view=v;render();closeSidebar();}
+
+// ══════════════════════════════════
+// HELPERS
+// ══════════════════════════════════
+function sbadge(s){return{active:'<span class="sbx bg">Activo</span>',suspended:'<span class="sbx ba">Suspendido</span>',disabled:'<span class="sbx bgy">Inhabilitado</span>'}[s]||s;}
+function pbadge(s){return{approved:'<span class="sbx bg">Aprobado</span>',pending:'<span class="sbx ba">Pendiente</span>',rejected:'<span class="sbx br">Rechazado</span>'}[s]||s;}
+function tbadge(s){return{open:'<span class="sbx br">Abierto</span>',pending:'<span class="sbx ba">Pendiente</span>',closed:'<span class="sbx bg">Cerrado</span>'}[s]||s;}
+function dot(s){return`<span class="sd ${{active:'dg',suspended:'da',disabled:'dgy'}[s]||'dgy'}"></span>`;}
+function getCo(){return S.user&&S.user.cid?S.companies.find(c=>c.id===S.user.cid):S.companies[0];}
+
+function daysUntil(dateStr){
+  if(!dateStr||dateStr==='—')return 9999;
+  const d=new Date(dateStr),n=new Date();n.setHours(0,0,0,0);
+  return Math.round((d-n)/(1000*60*60*24));
+}
+
+// ══════════════════════════════════
+// RENDER
+// ══════════════════════════════════
+function render(){
+  const menu=S.role==='superadmin'?SA_MENU:CL_MENU;
+  document.getElementById('sb').innerHTML=menu.map(m=>{
+    if(m.s)return`<div class="sc">${m.s}</div>`;
+    const b=m.bd?m.bd():null;
+    return`<button class="si${S.view===m.id?' on':''}" onclick="nav('${m.id}')"><i class="ti ${m.ic}"></i>${m.lb}${b?`<span class="sbx bc">${b}</span>`:''}</button>`;
+  }).join('');
+  const views={
+    dashboard:vDash,companies:vCo,databases:vDB,docker:vDock,
+    domains:vDom,backups:vBack,monitor:vMon,plans:vPlans,
+    payments:vPay,tickets:vTix,
+    'my-dash':vMyDash,'my-server':vMyServ,'my-res':vMyRes,
+    'my-dom':vMyDom,'my-pay':vMyPay,'my-tix':vMyTix,
+  };
+  document.getElementById('content').innerHTML=(views[S.view]||vDash)();
+  setTimeout(genQRs,120);
+}
+
+function genQRs(){
+  if(S.qrMode==='image')return;
+  document.querySelectorAll('.qr-gen').forEach(el=>{
+    if(el.children.length>0)return;
+    try{const v=el.dataset.val||`${S.qr.alias}|${S.qr.bank}|${S.qr.account}|${S.qr.currency}`;
+    new QRCode(el,{text:v,width:100,height:100,colorDark:'#3C3C3B',colorLight:'#fff'});}catch(e){}
+  });
+}
+
+function qrHTML(size=100){
+  if(S.qrMode==='image'&&S.qrImageDataUrl){
+    return`<img src="${S.qrImageDataUrl}" style="width:${size}px;height:${size}px;object-fit:cover;border-radius:var(--r)">`;
+  }
+  return`<div class="qr-gen" data-val="${S.qr.alias}|${S.qr.bank}|${S.qr.account}|${S.qr.currency}"></div>`;
+}
+
+// ══════════════════════════════════
+// SUPER ADMIN VIEWS
+// ══════════════════════════════════
+function vDash(){
+  const act=S.companies.filter(c=>c.status==='active').length;
+  const pend=S.payments.filter(p=>p.status==='pending').length;
+  const rev=S.payments.filter(p=>p.status==='approved').reduce((a,p)=>a+p.amount,0);
+  const otk=S.tickets.filter(t=>t.status!='closed').length;
+
+  // expiry: companies with payment within 7 days or overdue
+  const expiring=S.companies
+    .map(c=>({...c,days:daysUntil(c.nextPayment)}))
+    .filter(c=>c.days<=7&&c.status!=='disabled')
+    .sort((a,b)=>a.days-b.days);
+
+  const exHtml=expiring.length
+    ? expiring.map(c=>{
+        const urgent=c.days<=0;
+        const d=c.days<=0?`Venció hace ${Math.abs(c.days)}d`:c.days===0?'Vence hoy':`Vence en ${c.days}d`;
+        const waMsg=encodeURIComponent(`Hola ${c.name}, le recordamos que su suscripción NRAM360 Plan ${c.plan} ($${c.amount}) vence el ${c.nextPayment}. Por favor realice su pago. Gracias.`);
+        return`<div class="exp-row ${urgent?'urgent':'soon'}">
+          <div>
+            <div style="font-weight:500;font-size:13px">${c.name}</div>
+            <div style="font-size:12px;color:var(--t2)">Plan ${c.plan} · $${c.amount} · ${d}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            ${sbadge(c.status)}
+            <a href="https://wa.me/${c.wa}?text=${waMsg}" target="_blank" style="text-decoration:none">
+              <button class="btn bwa" style="font-size:12px;padding:5px 10px"><i class="ti ti-brand-whatsapp"></i> Notificar</button>
+            </a>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div style="font-size:13px;color:var(--t3);padding:10px 0;text-align:center">Sin vencimientos próximos ✓</div>';
+
+  return`
+<div class="ph"><div class="pt">Dashboard</div><span style="font-size:12px;color:var(--t3)">Mayo 2025</span></div>
+<div class="metrics">
+  <div class="met"><div class="ml">Empresas activas</div><div class="mv" style="color:var(--cd)">${act}</div><div class="ms">de ${S.companies.length} total</div></div>
+  <div class="met"><div class="ml">Pagos pendientes</div><div class="mv" style="color:var(--wa)">${pend}</div><div class="ms">sin aprobar</div></div>
+  <div class="met"><div class="ml">Recaudado (mes)</div><div class="mv">$${rev}</div></div>
+  <div class="met"><div class="ml">Tickets abiertos</div><div class="mv" style="color:var(--er)">${otk}</div></div>
+</div>
+
+<div class="card">
+  <div class="ctit">
+    <span><i class="ti ti-calendar-due" style="color:var(--wa);margin-right:6px;vertical-align:-2px"></i>Vencimientos próximos (7 días)</span>
+    <button class="btn" style="font-size:12px" onclick="nav('companies')">Ver empresas</button>
+  </div>
+  ${exHtml}
+</div>
+
+<div class="g2">
+  <div class="card"><div class="ctit">Pagos QR pendientes <span class="sbx ba">${pend}</span></div>
+    ${S.payments.filter(p=>p.status==='pending').map(p=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bo);font-size:13px;gap:8px">
+      <div><div style="font-weight:500">${p.company}</div><div style="font-size:11px;color:var(--t3)">$${p.amount} · ${p.date}</div></div>
+      <div style="display:flex;gap:5px">
+        <button class="ib" style="color:var(--ok)" onclick="approveP('${p.id}')" title="Aprobar"><i class="ti ti-check"></i></button>
+        <button class="ib" style="color:var(--er)" onclick="rejectP('${p.id}')" title="Rechazar"><i class="ti ti-x"></i></button>
+      </div>
+    </div>`).join('')||'<div style="font-size:13px;color:var(--t3);padding:8px 0;text-align:center">Sin pendientes ✓</div>'}
+    <div style="margin-top:10px"><button class="btn" onclick="nav('payments')" style="font-size:12px">Ver todos <i class="ti ti-arrow-right"></i></button></div>
+  </div>
+  <div class="card"><div class="ctit">Tickets recientes <span class="sbx br">${otk}</span></div>
+    ${S.tickets.filter(t=>t.status!='closed').slice(0,3).map(t=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bo);font-size:13px;gap:6px">
+      <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${t.subject}</div>
+      ${tbadge(t.status)}
+    </div>`).join('')||'<div style="font-size:13px;color:var(--t3);padding:8px 0;text-align:center">Sin tickets abiertos ✓</div>'}
+    <div style="margin-top:10px"><button class="btn" onclick="nav('tickets')" style="font-size:12px">Ver todos <i class="ti ti-arrow-right"></i></button></div>
+  </div>
+</div>
+
+<div class="card"><div class="ctit">Actividad reciente</div>
+  <div class="tl">
+    <div class="tli"><div class="tld"></div><div><div>Pago QR aprobado — Distribuidora Alfa $149</div><div class="tlt">Hoy 09:30</div></div></div>
+    <div class="tli"><div class="tld w"></div><div><div>Pago QR pendiente — Tech Solutions $79</div><div class="tlt">Hoy 08:55</div></div></div>
+    <div class="tli"><div class="tld e"></div><div><div>Ticket urgente TK-003 — Constructora Norteña</div><div class="tlt">Ayer 18:40</div></div></div>
+    <div class="tli"><div class="tld"></div><div><div>Backup automático completado — alfa_prod</div><div class="tlt">Ayer 03:00</div></div></div>
+  </div>
+</div>`;
+}
+
+function vCo(){
+  return`
+<div class="ph"><div class="pt">Empresas</div><button class="btn bp" onclick="mNewCo()"><i class="ti ti-plus"></i> Nueva empresa</button></div>
+<div class="tbl-wrap">
+<table>
+<thead><tr>
+  <th style="min-width:160px">Empresa</th>
+  <th style="min-width:140px">Dominio</th>
+  <th style="min-width:90px">Plan</th>
+  <th style="min-width:90px">Estado</th>
+  <th style="min-width:130px">RAM (manual)</th>
+  <th style="min-width:120px">Disco (manual)</th>
+  <th style="min-width:110px">Vencimiento</th>
+  <th style="min-width:120px">Acciones</th>
+</tr></thead>
+<tbody>
+${S.companies.map(c=>{
+  const rp=c.ram>0?Math.round(c.ramUsed/c.ram*100):0;
+  const dp=c.disk>0?Math.round(c.diskUsed/c.disk*100):0;
+  const days=daysUntil(c.nextPayment);
+  const dayColor=days<=3?'var(--er)':days<=7?'var(--wa)':'var(--t2)';
+  return`<tr>
+  <td><div style="font-weight:500">${c.name}</div><div style="font-size:11px;color:var(--t3)">${c.ip}</div></td>
+  <td style="font-size:12px;color:var(--in)">${c.domain}</td>
+  <td><span class="sbx bb">${c.plan}</span></td>
+  <td>${sbadge(c.status)}</td>
+  <td>
+    <div style="font-size:11px;display:flex;justify-content:space-between;color:var(--t2)"><span>${c.ramUsed}/${c.ram} MB</span><span>${rp}%</span></div>
+    <div class="pb"><div class="pf" style="width:${rp}%;background:${rp>80?'var(--er)':rp>60?'var(--wa)':'var(--c)'}"></div></div>
+  </td>
+  <td>
+    <div style="font-size:11px;display:flex;justify-content:space-between;color:var(--t2)"><span>${c.diskUsed}/${c.disk} GB</span><span>${dp}%</span></div>
+    <div class="pb"><div class="pf" style="width:${dp}%;background:${dp>80?'var(--er)':'var(--in)'}"></div></div>
+  </td>
+  <td style="font-size:12px;color:${dayColor};font-weight:${days<=7?'500':'400'}">${c.nextPayment}</td>
+  <td><div class="ar">
+    <button class="ib" title="Editar" onclick="mEditCo(${c.id})"><i class="ti ti-edit"></i></button>
+    <button class="ib" title="${c.status==='active'?'Suspender':'Activar'}" onclick="toggleSt(${c.id})" style="color:${c.status==='active'?'var(--wa)':'var(--ok)'}"><i class="ti ti-power"></i></button>
+    <button class="ib" title="Eliminar" onclick="mDelCo(${c.id})" style="color:var(--er)"><i class="ti ti-trash"></i></button>
+  </div></td>
+  </tr>`;
+}).join('')}
+</tbody>
+</table>
+</div>`;
+}
+
+function vDB(){
+  return`
+<div class="ph"><div class="pt">Bases de datos</div></div>
+${S.companies.map(c=>`
+<div class="card">
+  <div class="ctit">
+    <div style="display:flex;align-items:center;gap:8px"><i class="ti ti-database" style="color:var(--c);font-size:17px"></i>${c.name} ${sbadge(c.status)}</div>
+    <div class="ar">
+      <button class="btn" style="font-size:12px" onclick="mDbBack('${c.db}')"><i class="ti ti-database-export"></i> Backup</button>
+      <button class="btn" style="font-size:12px" onclick="mDbEdit(${c.id})"><i class="ti ti-edit"></i> Editar</button>
+      <button class="btn bd" style="font-size:12px" onclick="mDbDel(${c.id})"><i class="ti ti-trash"></i> Eliminar</button>
+    </div>
+  </div>
+  <div class="dbr"><span style="color:var(--t2)">Nombre BD</span><code>${c.db}</code></div>
+  <div class="dbr"><span style="color:var(--t2)">Motor</span><span>PostgreSQL 15</span></div>
+  <div class="dbr"><span style="color:var(--t2)">Tamaño estimado</span><span>${(c.diskUsed*0.6).toFixed(1)} GB</span></div>
+  <div class="dbr"><span style="color:var(--t2)">Versión servidor</span><span>${c.version}</span></div>
+  <div class="dbr"><span style="color:var(--t2)">Conexión</span><code style="font-size:11px">postgresql://user:***@postgres_main/${c.db}</code></div>
+  <div class="dbr"><span style="color:var(--t2)">Último backup</span><span style="font-size:12px">${c.backups?'2025-05-13 03:00':'—'}</span></div>
+</div>`).join('')}`;
+}
+
+function vDock(){
+  return`
+<div class="ph"><div class="pt">Docker / Contenedores</div><button class="btn bp"><i class="ti ti-plus"></i> Nuevo</button></div>
+<div class="tbl-wrap"><table>
+<thead><tr><th style="min-width:140px">Contenedor</th><th>Imagen</th><th>Estado</th><th>CPU</th><th style="min-width:120px">RAM</th><th>Puerto</th><th>Acc.</th></tr></thead>
+<tbody>
+${S.companies.filter(c=>c.status==='active').map(c=>{
+  const cpu=Math.floor(Math.random()*35+5);
+  const rp=Math.round(c.ramUsed/c.ram*100);
+  return`<tr>
+  <td><div style="font-weight:500;font-size:12px">srv_${c.db}</div><div style="font-size:11px;color:var(--t3)">${c.db}</div></td>
+  <td style="font-size:12px">v${c.version}</td>
+  <td><span class="sbx bg"><span class="sd dg"></span>Running</span></td>
+  <td style="font-size:12px">${cpu}%</td>
+  <td><div class="pb"><div class="pf" style="width:${rp}%;background:var(--c)"></div></div><span style="font-size:11px">${c.ramUsed}MB</span></td>
+  <td style="font-size:12px">80${c.id}2</td>
+  <td><div class="ar"><button class="ib"><i class="ti ti-player-stop"></i></button><button class="ib"><i class="ti ti-refresh"></i></button></div></td>
+  </tr>`;
+}).join('')}
+<tr><td><div style="font-weight:500;font-size:12px">postgres_main</div></td><td style="font-size:12px">postgres:15</td><td><span class="sbx bg"><span class="sd dg"></span>Running</span></td><td style="font-size:12px">11%</td><td><div class="pb"><div class="pf" style="width:38%;background:var(--in)"></div></div><span style="font-size:11px">3.8GB</span></td><td style="font-size:12px">5432</td><td><div class="ar"><button class="ib"><i class="ti ti-terminal"></i></button></div></td></tr>
+<tr><td><div style="font-weight:500;font-size:12px">traefik_proxy</div></td><td style="font-size:12px">traefik:v3</td><td><span class="sbx bg"><span class="sd dg"></span>Running</span></td><td style="font-size:12px">3%</td><td><div class="pb"><div class="pf" style="width:8%;background:var(--in)"></div></div><span style="font-size:11px">120MB</span></td><td style="font-size:12px">80/443</td><td><div class="ar"><button class="ib"><i class="ti ti-refresh"></i></button></div></td></tr>
+</tbody></table></div>`;
+}
+
+function vDom(){
+  return`
+<div class="ph"><div class="pt">Dominios & SSL</div><button class="btn bp"><i class="ti ti-plus"></i> Nuevo subdominio</button></div>
+${S.companies.map(c=>`
+<div class="card">
+  <div class="ctit">${c.name} ${sbadge(c.status)}</div>
+  <div class="dbr"><div><i class="ti ti-world" style="margin-right:6px;color:var(--cd);vertical-align:-2px"></i><b>${c.domain}</b></div>
+    <div style="display:flex;align-items:center;gap:8px"><span class="sbx ${c.ssl?'bg':'br'}">${c.ssl?'SSL activo':'Sin SSL'}</span>
+    <button class="ib" onclick="S.companies.find(x=>x.id===${c.id}).ssl^=1;render()"><i class="ti ti-${c.ssl?'lock':'lock-open'}"></i></button></div></div>
+  <div class="dbr" style="font-size:12px;color:var(--t2)"><span>Cloudflare proxy</span><button class="toggle ${c.ssl?'on':'off'}" onclick="S.companies.find(x=>x.id===${c.id}).ssl^=1;render()"></button></div>
+  <div class="dbr" style="font-size:12px;color:var(--t2);border-bottom:none"><span>IP servidor</span><code>${c.ip}</code></div>
+</div>`).join('')}`;
+}
+
+function vBack(){
+  return`
+<div class="ph"><div class="pt">Backups</div><button class="btn bp"><i class="ti ti-database-export"></i> Backup manual</button></div>
+<div class="tbl-wrap"><table>
+<thead><tr><th style="min-width:140px">Empresa</th><th>Auto</th><th style="min-width:130px">Último</th><th>Tamaño</th><th>Retención</th><th>Acciones</th></tr></thead>
+<tbody>
+${S.companies.map(c=>`<tr>
+  <td><div style="font-weight:500">${c.name}</div><div style="font-size:11px;color:var(--t3)">${c.db}</div></td>
+  <td><button class="toggle ${c.backups?'on':'off'}" onclick="S.companies.find(x=>x.id===${c.id}).backups^=1;render()"></button></td>
+  <td style="font-size:12px">${c.backups?'2025-05-13 03:00':'—'}</td>
+  <td style="font-size:12px">${c.backups?(c.diskUsed*0.3).toFixed(1)+' GB':'—'}</td>
+  <td style="font-size:12px">${c.backups?'7 días':'—'}</td>
+  <td><div class="ar">
+    <button class="ib" title="Backup ahora"><i class="ti ti-database-export"></i></button>
+    <button class="ib" title="Restaurar"><i class="ti ti-database-import"></i></button>
+    <button class="ib" title="Descargar"><i class="ti ti-download"></i></button>
+  </div></td>
+</tr>`).join('')}
+</tbody></table></div>`;
+}
+
+function vMon(){
+  return`
+<div class="ph"><div class="pt">Monitoreo</div><span style="font-size:12px;color:var(--ok)"><i class="ti ti-circle-filled" style="font-size:10px"></i> Live</span></div>
+<div class="ibox"><i class="ti ti-info-circle" style="margin-right:5px"></i>En producción se conecta al API de tu VPS (Prometheus / Netdata).</div>
+<div class="metrics">
+  <div class="met"><div class="ml">CPU servidor</div><div class="mv">34%</div></div>
+  <div class="met"><div class="ml">RAM total</div><div class="mv">18.2 GB</div><div class="ms">de 32 GB</div></div>
+  <div class="met"><div class="ml">Disco</div><div class="mv">41.2 GB</div><div class="ms">de 500 GB</div></div>
+  <div class="met"><div class="ml">Uptime</div><div class="mv" style="color:var(--ok)">99.8%</div></div>
+</div>
+${S.companies.filter(c=>c.status==='active').map(c=>{
+  const rp=Math.round(c.ramUsed/c.ram*100);
+  const cpu=Math.floor(Math.random()*40+8);
+  const dp=Math.round(c.diskUsed/c.disk*100);
+  return`<div class="card">
+    <div class="ctit">${c.name} <span class="sbx bg">Online</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:var(--t2)">CPU</span><span>${cpu}%</span></div><div class="pb"><div class="pf" style="width:${cpu}%;background:${cpu>80?'var(--er)':'var(--in)'}"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:var(--t2)">RAM</span><span>${rp}%</span></div><div class="pb"><div class="pf" style="width:${rp}%;background:${rp>80?'var(--er)':'var(--c)'}"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:var(--t2)">Disco</span><span>${dp}%</span></div><div class="pb"><div class="pf" style="width:${dp}%;background:${dp>80?'var(--er)':'var(--wa)'}"></div></div></div>
+    </div>
+    <div style="margin-top:8px;font-size:11px;color:var(--t3)">DB: ${c.db} · IP: ${c.ip} · v${c.version}</div>
+  </div>`;
+}).join('')}`;
+}
+
+function vPlans(){
+  return`
+<div class="ph"><div class="pt">Planes</div><button class="btn bp" onclick="mNewPlan()"><i class="ti ti-plus"></i> Nuevo plan</button></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px">
+${S.plans.map(p=>`
+<div class="card" style="border-top:3px solid var(--c)">
+  <div style="font-size:16px;font-weight:600;margin-bottom:4px">${p.name}</div>
+  <div style="font-size:24px;font-weight:700;color:var(--cd);margin-bottom:6px">$${p.price}<span style="font-size:12px;font-weight:400;color:var(--t2)">/mes</span></div>
+  <div style="font-size:12px;color:var(--t2);margin-bottom:10px">${p.desc}</div>
+  <div class="dbr" style="font-size:12px;padding:5px 0"><span style="color:var(--t2)">RAM</span><span>${p.ram} MB</span></div>
+  <div class="dbr" style="font-size:12px;padding:5px 0;border-bottom:none"><span style="color:var(--t2)">Disco</span><span>${p.disk} GB</span></div>
+  <div style="margin-top:4px;font-size:11px;color:var(--t3)">${S.companies.filter(c=>c.plan===p.name).length} empresa(s)</div>
+  <div class="ar" style="margin-top:12px">
+    <button class="btn" style="font-size:12px;flex:1" onclick="mEditPlan(${p.id})"><i class="ti ti-edit"></i> Editar</button>
+    <button class="btn bd" style="font-size:12px" onclick="S.plans=S.plans.filter(x=>x.id!==${p.id});render()"><i class="ti ti-trash"></i></button>
+  </div>
+</div>`).join('')}
+</div>`;
+}
+
+function vPay(){
+  const pend=S.payments.filter(p=>p.status==='pending').length;
+  return`
+<div class="ph"><div class="pt">Pagos QR</div><button class="btn bp" onclick="mRegPay()"><i class="ti ti-plus"></i> Registrar pago</button></div>
+<div class="g2">
+  <div class="card">
+    <div class="ctit">QR de cobro <button class="btn" style="font-size:12px" onclick="mEditQR()"><i class="ti ti-edit"></i> Editar</button></div>
+    <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap">
+      <div>
+        <div class="qrbox">${qrHTML(100)}</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:5px;text-align:center">${S.qrMode==='image'?'Imagen subida':'QR generado'}</div>
+      </div>
+      <div style="flex:1;font-size:13px;min-width:140px">
+        <div class="dbr" style="padding:5px 0"><span style="color:var(--t2)">Banco</span><span>${S.qr.bank}</span></div>
+        <div class="dbr" style="padding:5px 0"><span style="color:var(--t2)">Alias</span><span>${S.qr.alias}</span></div>
+        <div class="dbr" style="padding:5px 0"><span style="color:var(--t2)">Cuenta</span><span>${S.qr.account}</span></div>
+        <div class="dbr" style="padding:5px 0;border-bottom:none"><span style="color:var(--t2)">Moneda</span><span>${S.qr.currency}</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctit">Resumen</div>
+    <div class="metrics" style="margin-bottom:0">
+      <div class="met"><div class="ml">Pendientes</div><div class="mv" style="color:var(--wa)">${pend}</div></div>
+      <div class="met"><div class="ml">Aprobados</div><div class="mv" style="color:var(--ok)">${S.payments.filter(p=>p.status==='approved').length}</div></div>
+      <div class="met"><div class="ml">Recaudado</div><div class="mv">$${S.payments.filter(p=>p.status==='approved').reduce((a,p)=>a+p.amount,0)}</div></div>
+    </div>
+  </div>
+</div>
+
+${pend>0?`<div style="font-size:14px;font-weight:600;margin-bottom:10px;color:var(--nt)">Pendientes de aprobación</div>
+${S.payments.filter(p=>p.status==='pending').map(p=>`
+<div class="payw">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:8px">
+    <div><div style="font-weight:500;font-size:13px">${p.company}</div><div style="font-size:12px;color:var(--t2)">${p.id} · ${p.date} · Plan ${p.plan}</div></div>
+    <div style="font-size:20px;font-weight:700">$${p.amount}</div>
+  </div>
+  <div style="font-size:12px;color:var(--t2);margin-bottom:10px">${p.note}${p.voucher?' · Comprobante: '+p.voucher:' · Sin comprobante'}</div>
+  <div class="ar">
+    <button class="btn bsuc" style="font-size:12px" onclick="approveP('${p.id}')"><i class="ti ti-check"></i> Aprobar</button>
+    <button class="btn bd" style="font-size:12px" onclick="rejectP('${p.id}')"><i class="ti ti-x"></i> Rechazar</button>
+    <button class="btn" style="font-size:12px" onclick="mMsgCo(${p.cid})"><i class="ti ti-brand-whatsapp" style="color:#25D366"></i> Contactar</button>
+  </div>
+</div>`).join('')}`:''}
+
+<div style="font-size:14px;font-weight:600;margin:16px 0 10px;color:var(--nt)">Historial completo</div>
+<div class="tbl-wrap"><table>
+<thead><tr><th>#</th><th style="min-width:140px">Empresa</th><th>Plan</th><th>Monto</th><th>Fecha</th><th>Referencia</th><th>Estado</th><th>Acc.</th></tr></thead>
+<tbody>
+${S.payments.map(p=>`<tr>
+  <td style="font-size:11px;color:var(--t3)">${p.id}</td>
+  <td>${p.company}</td>
+  <td><span class="sbx bb">${p.plan}</span></td>
+  <td style="font-weight:600">$${p.amount}</td>
+  <td style="font-size:12px">${p.date}</td>
+  <td style="font-size:12px;color:var(--t3)">${p.ref||'—'}</td>
+  <td>${pbadge(p.status)}</td>
+  <td><div class="ar">${p.status==='pending'
+    ?`<button class="ib" style="color:var(--ok)" onclick="approveP('${p.id}')"><i class="ti ti-check"></i></button><button class="ib" style="color:var(--er)" onclick="rejectP('${p.id}')"><i class="ti ti-x"></i></button>`
+    :`<button class="ib" onclick="mPayDetail('${p.id}')"><i class="ti ti-eye"></i></button>`}
+  </div></td>
+</tr>`).join('')}
+</tbody></table></div>`;
+}
+
+function vTix(){
+  return`
+<div class="ph"><div class="pt">Tickets de soporte</div></div>
+<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+  <span class="sbx br" style="padding:5px 12px">${S.tickets.filter(t=>t.status==='open').length} Abiertos</span>
+  <span class="sbx ba" style="padding:5px 12px">${S.tickets.filter(t=>t.status==='pending').length} Pendientes</span>
+  <span class="sbx bg" style="padding:5px 12px">${S.tickets.filter(t=>t.status==='closed').length} Cerrados</span>
+</div>
+${S.tickets.map(t=>`
+<div class="tc tk-${t.status==='open'?'o':t.status==='pending'?'p':'c'}" onclick="mTixDetail('${t.id}')">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:6px">
+    <div style="font-weight:500;font-size:13px">${t.subject}</div>
+    <div style="display:flex;gap:5px">${tbadge(t.status)}<span class="sbx ${t.priority==='high'?'br':t.priority==='mid'?'ba':'bgy'}">${t.priority}</span></div>
+  </div>
+  <div style="font-size:12px;color:var(--t2)">${t.company} · ${t.id} · ${t.date}</div>
+  <div style="font-size:12px;color:var(--t3);margin-top:4px">${t.msg.substring(0,70)}…</div>
+</div>`).join('')}`;
+}
+
+// ══════════════════════════════════
+// CLIENTE / ADMIN VIEWS
+// ══════════════════════════════════
+function vMyDash(){
+  const co=getCo();
+  const mt=S.tickets.filter(t=>t.cid===co.id);
+  const mp=S.payments.filter(p=>p.cid===co.id);
+  const days=daysUntil(co.nextPayment);
+  return`
+<div class="ph"><div class="pt">Mi Panel</div>${sbadge(co.status)}</div>
+${days<=7&&co.status!=='disabled'?`<div class="wbox" style="margin-bottom:14px"><i class="ti ti-bell" style="margin-right:6px"></i><b>${days<=0?'Tu suscripción ha vencido.':'Tu suscripción vence en '+days+' día(s).'}</b> Por favor realiza tu pago.</div>`:''}
+<div class="metrics">
+  <div class="met"><div class="ml">Estado</div><div class="mv" style="font-size:15px;color:var(--cd)">${co.status==='active'?'Activa':co.status==='suspended'?'Suspendida':'Inhabilitada'}</div></div>
+  <div class="met"><div class="ml">Plan</div><div class="mv" style="font-size:15px">${co.plan}</div></div>
+  <div class="met"><div class="ml">Próximo pago</div><div class="mv" style="font-size:14px">${co.nextPayment}</div><div class="ms">$${co.amount}/mes</div></div>
+  <div class="met"><div class="ml">Tickets</div><div class="mv">${mt.filter(t=>t.status!='closed').length}</div></div>
+</div>
+<div class="g2">
+  <div class="card">
+    <div class="ctit">Estado de suscripción</div>
+    <div class="dbr"><span style="color:var(--t2)">Estado</span>${sbadge(co.status)}</div>
+    <div class="dbr"><span style="color:var(--t2)">Plan</span><span class="sbx bb">${co.plan}</span></div>
+    <div class="dbr"><span style="color:var(--t2)">Próximo pago</span><span>${co.nextPayment}</span></div>
+    <div class="dbr" style="border-bottom:none"><span style="color:var(--t2)">Monto</span><span style="font-weight:600">$${co.amount} ${S.qr.currency}</span></div>
+    <div style="margin-top:12px"><button class="btn bp" style="font-size:12px" onclick="nav('my-pay')"><i class="ti ti-credit-card"></i> Ir a pagar</button></div>
+  </div>
+  <div class="card">
+    <div class="ctit">Últimos pagos</div>
+    ${mp.slice(0,3).map(p=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bo);font-size:13px;gap:6px">
+      <div><div style="font-weight:500">$${p.amount} · ${p.plan}</div><div style="font-size:11px;color:var(--t3)">${p.date}</div></div>
+      ${pbadge(p.status)}</div>`).join('')}
+    <div style="margin-top:10px"><button class="btn" onclick="nav('my-pay')" style="font-size:12px">Ver historial <i class="ti ti-arrow-right"></i></button></div>
+  </div>
+</div>`;
+}
+
+function vMyServ(){
+  const co=getCo();
+  return`
+<div class="ph"><div class="pt">Mi Servidor</div></div>
+<div class="card" style="text-align:center;padding:36px 20px">
+  <i class="ti ti-server-2" style="font-size:50px;color:var(--c);display:block;margin-bottom:14px"></i>
+  <div style="font-size:19px;font-weight:600;margin-bottom:5px">${co.name}</div>
+  <div style="font-size:13px;color:var(--t2);margin-bottom:5px">Servidor v${co.version} · Plan ${co.plan}</div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:22px;flex-wrap:wrap">
+    <span class="sd dg"></span><span style="font-size:13px;color:var(--ok);font-weight:500">Online</span>
+    <span style="color:var(--t3);margin-left:6px;font-size:13px">${co.domain}</span>
+    ${co.ssl?'<span class="sbx bg">SSL ✓</span>':'<span class="sbx br">Sin SSL</span>'}
+  </div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <a href="https://${co.domain}" target="_blank" style="text-decoration:none">
+      <button class="btn bp" style="font-size:14px;padding:10px 20px"><i class="ti ti-external-link"></i> Abrir mi servidor</button>
+    </a>
+    <button class="btn" style="font-size:14px;padding:10px 20px" onclick="nav('my-tix')"><i class="ti ti-headset"></i> Soporte</button>
+  </div>
+</div>
+<div class="card">
+  <div class="ctit">Información técnica</div>
+  <div class="dbr"><span style="color:var(--t2)">URL</span><code>${co.domain}</code></div>
+  <div class="dbr"><span style="color:var(--t2)">Versión</span><span>v${co.version}</span></div>
+  <div class="dbr"><span style="color:var(--t2)">SSL</span><span>${co.ssl?'Activo — válido hasta 2026-05-13':'Inactivo'}</span></div>
+  <div class="dbr"><span style="color:var(--t2)">Uptime</span><span style="color:var(--ok)">99.8%</span></div>
+  <div class="dbr" style="border-bottom:none"><span style="color:var(--t2)">Backups</span><span>${co.backups?'Activos — cada 24h':'Inactivos'}</span></div>
+</div>`;
+}
+
+function vMyRes(){
+  const co=getCo();
+  const rp=co.ram>0?Math.round(co.ramUsed/co.ram*100):0;
+  const dp=co.disk>0?Math.round(co.diskUsed/co.disk*100):0;
+  return`
+<div class="ph"><div class="pt">Mis Recursos</div></div>
+<div class="ibox"><i class="ti ti-info-circle" style="margin-right:5px"></i>Recursos asignados manualmente por el administrador según tu plan <b>${co.plan}</b>.</div>
+<div class="g2">
+  <div class="card">
+    <div class="ctit">RAM</div>
+    <div style="font-size:24px;font-weight:700;color:var(--cd);margin-bottom:6px">${co.ramUsed} <span style="font-size:13px;font-weight:400;color:var(--t2)">/ ${co.ram} MB</span></div>
+    <div class="pb" style="height:10px;margin-bottom:6px"><div class="pf" style="width:${rp}%;background:${rp>80?'var(--er)':'var(--c)'}"></div></div>
+    <div style="font-size:12px;color:var(--t2)">${rp}% utilizado</div>
+  </div>
+  <div class="card">
+    <div class="ctit">Disco</div>
+    <div style="font-size:24px;font-weight:700;color:var(--in);margin-bottom:6px">${co.diskUsed} <span style="font-size:13px;font-weight:400;color:var(--t2)">/ ${co.disk} GB</span></div>
+    <div class="pb" style="height:10px;margin-bottom:6px"><div class="pf" style="width:${dp}%;background:${dp>80?'var(--er)':'var(--in)'}"></div></div>
+    <div style="font-size:12px;color:var(--t2)">${dp}% utilizado</div>
+  </div>
+</div>
+<div class="card">
+  <div class="ctit">Especificaciones</div>
+  <div class="dbr"><span style="color:var(--t2)">Plan</span><span class="sbx bb">${co.plan}</span></div>
+  <div class="dbr"><span style="color:var(--t2)">RAM asignada</span><span>${co.ram} MB</span></div>
+  <div class="dbr"><span style="color:var(--t2)">Disco asignado</span><span>${co.disk} GB</span></div>
+  <div class="dbr"><span style="color:var(--t2)">Base de datos</span><code>${co.db}</code></div>
+  <div class="dbr" style="border-bottom:none"><span style="color:var(--t2)">¿Necesitas más?</span><button class="btn" style="font-size:12px" onclick="nav('my-tix')"><i class="ti ti-arrow-up"></i> Solicitar upgrade</button></div>
+</div>`;
+}
+
+function vMyDom(){
+  const co=getCo();
+  return`
+<div class="ph"><div class="pt">Mi Dominio</div></div>
+<div class="card">
+  <div class="dbr"><div><i class="ti ti-world" style="margin-right:6px;color:var(--cd);vertical-align:-2px"></i><b>${co.domain}</b></div><span class="sbx ${co.ssl?'bg':'br'}">${co.ssl?'SSL activo':'Sin SSL'}</span></div>
+  <div class="dbr" style="font-size:13px"><span style="color:var(--t2)">Estado</span><span style="color:var(--ok)">● Online</span></div>
+  <div class="dbr" style="font-size:13px"><span style="color:var(--t2)">SSL vence</span><span>${co.ssl?'2026-05-13':'—'}</span></div>
+  <div class="dbr" style="font-size:13px;border-bottom:none"><span style="color:var(--t2)">IP servidor</span><code>${co.ip}</code></div>
+</div>
+<div class="card">
+  <div class="ctit">DNS (gestionado por el admin)</div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Tipo</th><th>Nombre</th><th>Valor</th></tr></thead>
+    <tbody>
+      <tr><td>A</td><td>${co.domain}</td><td>${co.ip}</td></tr>
+      <tr><td>CNAME</td><td>www.${co.domain}</td><td>${co.domain}</td></tr>
+    </tbody>
+  </table></div>
+  <div style="margin-top:12px"><button class="btn" onclick="nav('my-tix')" style="font-size:12px"><i class="ti ti-message-circle"></i> Solicitar cambio DNS</button></div>
+</div>`;
+}
+
+function vMyPay(){
+  const co=getCo();
+  const mp=S.payments.filter(p=>p.cid===co.id);
+  const pend=mp.filter(p=>p.status==='pending');
+  const waMsg=encodeURIComponent(`Hola NRAM360, soy ${co.name}. Adjunto comprobante de pago Plan ${co.plan} $${co.amount} ${S.qr.currency}. Fecha: ${new Date().toLocaleDateString('es-BO')}.`);
+  const waLink=`https://wa.me/59171234567?text=${waMsg}`;
+  return`
+<div class="ph"><div class="pt">Pagos & QR</div></div>
+<div class="card">
+  <div class="ctit">Cómo pagar</div>
+  <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+    <div style="text-align:center">
+      <div class="qrbox">${qrHTML(110)}</div>
+      <div style="font-size:11px;color:var(--t3);margin-top:5px">Escanea para pagar</div>
+    </div>
+    <div style="flex:1;min-width:160px;font-size:13px">
+      <div class="dbr" style="padding:5px 0"><span style="color:var(--t2)">Banco</span><span>${S.qr.bank}</span></div>
+      <div class="dbr" style="padding:5px 0"><span style="color:var(--t2)">Alias</span><span>${S.qr.alias}</span></div>
+      <div class="dbr" style="padding:5px 0"><span style="color:var(--t2)">Cuenta</span><span>${S.qr.account}</span></div>
+      <div class="dbr" style="padding:5px 0;border-bottom:none"><span style="color:var(--t2)">Monto</span><span style="font-weight:700;font-size:16px;color:var(--cd)">$${co.amount} ${S.qr.currency}</span></div>
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+        <button class="btn bp" onclick="mUploadVoucher()"><i class="ti ti-upload"></i> Subir comprobante</button>
+        <a href="${waLink}" target="_blank" style="text-decoration:none">
+          <button class="btn bwa"><i class="ti ti-brand-whatsapp"></i> Enviar por WhatsApp</button>
+        </a>
+      </div>
+    </div>
+  </div>
+  ${pend.length?`<div class="wbox" style="margin-top:14px"><i class="ti ti-clock" style="margin-right:5px"></i>Tu pago de <b>$${pend[0].amount}</b> está en revisión.</div>`:''}
+</div>
+<div class="card">
+  <div class="ctit">Historial de pagos</div>
+  ${mp.map(p=>`<div class="${p.status==='pending'?'payw':p.status==='approved'?'payok':'payer'}" style="margin-bottom:8px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+      <div><div style="font-weight:500;font-size:13px">Plan ${p.plan} — $${p.amount}</div>
+      <div style="font-size:12px;color:var(--t2)">${p.id} · ${p.date}${p.ref?' · '+p.ref:''}</div></div>
+      ${pbadge(p.status)}
+    </div>
+    ${p.note?`<div style="font-size:12px;color:var(--t3);margin-top:5px">${p.note}</div>`:''}
+  </div>`).join('')}
+</div>`;
+}
+
+function vMyTix(){
+  const co=getCo();
+  const mt=S.tickets.filter(t=>t.cid===co.id);
+  return`
+<div class="ph"><div class="pt">Soporte</div><button class="btn bp" onclick="mNewTix()"><i class="ti ti-plus"></i> Nuevo ticket</button></div>
+${mt.map(t=>`
+<div class="tc tk-${t.status==='open'?'o':t.status==='pending'?'p':'c'}">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:5px">
+    <div style="font-weight:500;font-size:13px">${t.subject}</div>${tbadge(t.status)}
+  </div>
+  <div style="font-size:12px;color:var(--t2)">${t.id} · ${t.date}</div>
+  <div style="font-size:13px;color:var(--t2);margin-top:5px">${t.msg}</div>
+</div>`).join('')}`;
+}
+
+// ══════════════════════════════════
+// MODAL HELPERS
+// ══════════════════════════════════
+function openModal(title,body){
+  document.getElementById('mt2').textContent=title;
+  document.getElementById('mbody').innerHTML=body;
+  document.getElementById('mw').classList.add('open');
+  setTimeout(genQRs,100);
+}
+function closeModal(){document.getElementById('mw').classList.remove('open');}
+
+async function approveP(id){
+  const numId=id.replace('PAY-','');
+  const result=await apiCall('PUT','/payments/'+numId+'/approve');
+  if(result){const p=S.payments.find(x=>x.id===id);if(p)p.status='approved';}
+  render();
+}
+async function rejectP(id){
+  const numId=id.replace('PAY-','');
+  const result=await apiCall('PUT','/payments/'+numId+'/reject');
+  if(result){const p=S.payments.find(x=>x.id===id);if(p)p.status='rejected';}
+  render();
+}
+function toggleSt(id){const c=S.companies.find(x=>x.id===id);c.status=c.status==='active'?'suspended':c.status==='suspended'?'active':'active';if(c.status!='active')c.ramUsed=0;else c.ramUsed=Math.floor(c.ram*0.5);render();}
+
+// ── NEW COMPANY ──
+function mNewCo(){
+  openModal('Nueva empresa',`
+<div class="fr">
+  <div class="fg"><label>Nombre empresa</label><input type="text" id="nc_name" placeholder="Distribuidora Alfa S.A."></div>
+  <div class="fg"><label>Dominio</label><input type="text" id="nc_dom" placeholder="alfa.nram360.io"></div>
+</div>
+<div class="fr">
+  <div class="fg"><label>Plan</label><select id="nc_plan">${S.plans.map(p=>`<option>${p.name}</option>`).join('')}</select></div>
+  <div class="fg"><label>Versión servidor</label><select id="nc_ver"><option>17.0</option><option>16.0</option><option>15.0</option></select></div>
+</div>
+<div class="fr">
+  <div class="fg"><label>RAM total (MB)</label><input type="number" id="nc_ram" value="1024"></div>
+  <div class="fg"><label>RAM en uso (MB)</label><input type="number" id="nc_ramu" value="0"></div>
+</div>
+<div class="fr">
+  <div class="fg"><label>Disco (GB)</label><input type="number" id="nc_disk" value="10"></div>
+  <div class="fg"><label>Disco usado (GB)</label><input type="number" id="nc_disku" value="0"></div>
+</div>
+<div class="fr">
+  <div class="fg"><label>Nombre base de datos</label><input type="text" id="nc_db" placeholder="empresa_prod"></div>
+  <div class="fg"><label>IP asignada</label><input type="text" id="nc_ip" placeholder="10.0.1.6"></div>
+</div>
+<div class="fr">
+  <div class="fg"><label>WhatsApp empresa</label><input type="text" id="nc_wa" placeholder="59171234567"></div>
+  <div class="fg"><label>Monto mensual ($)</label><input type="number" id="nc_amt" placeholder="79"></div>
+</div>
+<div class="fg"><label>Próximo pago</label><input type="date" id="nc_date"></div>
+<div style="background:var(--cl);border-radius:var(--r);padding:12px;margin-bottom:10px">
+  <div style="font-size:13px;font-weight:500;margin-bottom:8px;color:var(--cd)"><i class="ti ti-user" style="margin-right:5px"></i>Credenciales de acceso (Admin/Cliente)</div>
+  <div class="fr">
+    <div class="fg"><label>Email de acceso</label><input type="email" id="nc_email" placeholder="empresa@nram360.io"></div>
+    <div class="fg"><label>Contraseña</label><input type="password" id="nc_pass" placeholder="Contraseña inicial"></div>
+  </div>
+</div>
+<div class="fg"><label>Notas internas</label><input type="text" id="nc_notes" placeholder="Notas sobre el cliente…"></div>
+<div style="display:flex;gap:8px;margin-top:10px">
+  <button class="btn bp" onclick="saveNewCo()"><i class="ti ti-check"></i> Crear empresa</button>
+  <button class="btn" onclick="closeModal()">Cancelar</button>
+</div>`);
+}
+
+async async function saveNewCo(){
+  const g=id=>document.getElementById(id)?.value||'';
+  const plan=S.plans.find(p=>p.name===g('nc_plan'))||S.plans[0];
+  const btn=document.getElementById('saveCoBtn');
+  if(btn){btn.textContent='Creando...';btn.disabled=true;}
+  const createOdoo=document.getElementById('nc_createodoo')?.checked||false;
+  const payload={
+    name:g('nc_name'),domain:g('nc_dom'),plan:plan?.name||'Starter',
+    ram_total:parseInt(g('nc_ram'))||1024,ram_used:parseInt(g('nc_ramu'))||0,
+    disk_total:parseInt(g('nc_disk'))||10,disk_used:parseFloat(g('nc_disku'))||0,
+    db_name:g('nc_db'),server_version:g('nc_ver')||'18.0',
+    ip_address:g('nc_ip'),whatsapp:g('nc_wa'),
+    monthly_amount:parseInt(g('nc_amt'))||plan?.price||79,
+    next_payment:g('nc_date')||null,notes:g('nc_notes'),
+    admin_email:g('nc_email'),admin_password:g('nc_pass'),
+    create_odoo_db:createOdoo,
+  };
+  const result=await apiCall('POST','/companies',payload);
+  if(result&&result.company){
+    const c=result.company;
+    S.companies.push({
+      id:c.id,name:c.name,domain:c.domain,plan:c.plan,status:c.status,
+      ram:c.ram_total,ramUsed:c.ram_used,disk:c.disk_total,diskUsed:parseFloat(c.disk_used||0),
+      db:c.db_name,version:c.server_version,ip:c.ip_address||'',
+      ssl:c.ssl_active,backups:c.backups_active,
+      nextPayment:c.next_payment?.slice(0,10)||'—',amount:parseFloat(c.monthly_amount),
+      wa:c.whatsapp||'',notes:c.notes||'',adminEmail:c.admin_email,adminPass:'***',
+    });
+    closeModal();
+    alert('✅ Empresa '+c.name+' creada'+(result.odoo?.success?' + servidor creado':''));
+    render();
+  } else {
+    alert('Error: '+(result?.error||'No se pudo crear'));
+  }
+  if(btn){btn.textContent='Crear empresa';btn.disabled=false;}
+}
+
+// ── EDIT COMPANY ──
+function mEditCo(id){
+  const c=S.companies.find(x=>x.id===id);
+  openModal('Editar: '+c.name,`
+<div class="fr">
+  <div class="fg"><label>Estado</label><select id="ec_st">
+    <option ${c.status==='active'?'selected':''}value="active">Activo</option>
+    <option ${c.status==='suspended'?'selected':''}value="suspended">Suspendido</option>
+    <option ${c.status==='disabled'?'selected':''}value="disabled">Inhabilitado</option>
+  </select></div>
+  <div class="fg"><label>Plan</label><select id="ec_plan">${S.plans.map(p=>`<option ${c.plan===p.name?'selected':''}>${p.name}</option>`).join('')}</select></div>
+</div>
+<div class="fr">
+  <div class="fg"><label>RAM total (MB)</label><input type="number" id="ec_ram" value="${c.ram}"></div>
+  <div class="fg"><label>RAM en uso (MB)</label><input type="number" id="ec_ramu" value="${c.ramUsed}"></div>
+</div>
+<div class="fr">
+  <div class="fg"><label>Disco (GB)</label><input type="number" id="ec_disk" value="${c.disk}"></div>
+  <div class="fg"><label>Disco usado (GB)</label><input type="number" id="ec_disku" value="${c.diskUsed}"></div>
+</div>
+<div class="fr">
+  <div class="fg"><label>WhatsApp</label><input type="text" id="ec_wa" value="${c.wa}"></div>
+  <div class="fg"><label>Monto mensual ($)</label><input type="number" id="ec_amt" value="${c.amount}"></div>
+</div>
+<div class="fg"><label>Próximo pago</label><input type="date" id="ec_date" value="${c.nextPayment==='—'?'':c.nextPayment}"></div>
+<div style="background:var(--cl);border-radius:var(--r);padding:12px;margin-bottom:10px">
+  <div style="font-size:13px;font-weight:500;margin-bottom:8px;color:var(--cd)"><i class="ti ti-user" style="margin-right:5px"></i>Acceso Admin/Cliente</div>
+  <div class="fr">
+    <div class="fg"><label>Email</label><input type="email" id="ec_email" value="${c.adminEmail}"></div>
+    <div class="fg"><label>Nueva contraseña</label><input type="password" id="ec_pass" placeholder="Dejar vacío = sin cambio"></div>
+  </div>
+</div>
+<div class="fg"><label>Notas internas</label><input type="text" id="ec_notes" value="${c.notes}"></div>
+<div style="display:flex;gap:8px;margin-top:10px">
+  <button class="btn bp" onclick="saveEditCo(${id})"><i class="ti ti-check"></i> Guardar</button>
+  <button class="btn" onclick="closeModal()">Cancelar</button>
+</div>`);
+}
+
+function saveEditCo(id){
+  const c=S.companies.find(x=>x.id===id);
+  const g=i=>document.getElementById(i)?.value;
+  if(g('ec_st'))c.status=g('ec_st');
+  if(g('ec_plan'))c.plan=g('ec_plan');
+  if(g('ec_ram'))c.ram=parseInt(g('ec_ram'))||c.ram;
+  if(g('ec_ramu'))c.ramUsed=parseInt(g('ec_ramu'))||0;
+  if(g('ec_disk'))c.disk=parseInt(g('ec_disk'))||c.disk;
+  if(g('ec_disku'))c.diskUsed=parseFloat(g('ec_disku'))||0;
+  if(g('ec_wa'))c.wa=g('ec_wa');
+  if(g('ec_amt'))c.amount=parseInt(g('ec_amt'))||c.amount;
+  if(g('ec_date'))c.nextPayment=g('ec_date')||c.nextPayment;
+  if(g('ec_email'))c.adminEmail=g('ec_email');
+  if(g('ec_pass')&&g('ec_pass').trim())c.adminPass=g('ec_pass').trim();
+  if(g('ec_notes')!==null)c.notes=g('ec_notes');
+  closeModal();render();
+}
+
+// ── DELETE COMPANY ──
+function mDelCo(id){
+  const c=S.companies.find(x=>x.id===id);
+  openModal('Eliminar empresa',`
+<div class="ebox" style="margin-bottom:14px">
+  <i class="ti ti-alert-triangle" style="font-size:34px;display:block;margin-bottom:8px"></i>
+  <div style="font-size:15px;font-weight:600;margin-bottom:6px">¿Eliminar "${c.name}"?</div>
+  <div style="font-size:13px">Se eliminará el contenedor, la BD <code>${c.db}</code> y todos los datos. Irreversible.</div>
+</div>
+<div class="fg"><label>Escribe el nombre para confirmar</label><input type="text" id="delc" placeholder="${c.name}"></div>
+<div style="display:flex;gap:8px;justify-content:center;margin-top:10px">
+  <button class="btn bd" onclick="if(document.getElementById('delc').value.trim()==='${c.name}'){S.companies=S.companies.filter(x=>x.id!==${id});S.payments=S.payments.filter(x=>x.cid!==${id});S.tickets=S.tickets.filter(x=>x.cid!==${id});closeModal();render();}else{alert('Nombre incorrecto')}"><i class="ti ti-trash"></i> Sí, eliminar todo</button>
+  <button class="btn" onclick="closeModal()">Cancelar</button>
+</div>`);
+}
+
+// ── DB MODALS ──
+function mDbEdit(id){
+  const c=S.companies.find(x=>x.id===id);
+  openModal('Editar BD: '+c.db,`
+<div class="fg"><label>Nombre BD</label><input type="text" value="${c.db}"></div>
+<div class="fr">
+  <div class="fg"><label>Versión servidor</label><select><option ${c.version==='17.0'?'selected':''}>17.0</option><option ${c.version==='16.0'?'selected':''}>16.0</option></select></div>
+  <div class="fg"><label>Cluster PostgreSQL</label><input type="text" value="postgres_main" readonly style="opacity:.6"></div>
+</div>
+<div class="fg"><label>Nueva contraseña BD</label><input type="password" placeholder="Vacío = sin cambio"></div>
+<div class="ibox"><i class="ti ti-info-circle" style="margin-right:4px"></i>Renombrar requiere reiniciar el contenedor.</div>
+<div style="display:flex;gap:8px">
+  <button class="btn bp" onclick="closeModal()"><i class="ti ti-check"></i> Guardar</button>
+  <button class="btn" onclick="closeModal()">Cancelar</button>
+</div>`);
+}
+
+function mDbDel(id){
+  const c=S.companies.find(x=>x.id===id);
+  openModal('Eliminar BD',`
+<div class="ebox" style="margin-bottom:14px">
+  <i class="ti ti-database-off" style="font-size:32px;display:block;margin-bottom:8px"></i>
+  <div style="font-size:15px;font-weight:600;margin-bottom:6px">Eliminar <code>${c.db}</code></div>
+  <div style="font-size:13px">Se eliminará la base de datos de PostgreSQL. Acción irreversible.</div>
+</div>
+<div class="fg"><label>Escribe el nombre de la BD para confirmar</label><input type="text" id="deld" placeholder="${c.db}"></div>
+<div style="display:flex;gap:8px;justify-content:center;margin-top:10px">
+  <button class="btn bd" onclick="if(document.getElementById('deld').value==='${c.db}'){closeModal();}else{alert('Nombre incorrecto')}"><i class="ti ti-trash"></i> Eliminar BD</button>
+  <button class="btn" onclick="closeModal()">Cancelar</button>
+</div>`);
+}
+
+function mDbBack(db){
+  openModal('Backup — '+db,`
+<div class="fr">
+  <div class="fg"><label>Formato</label><select><option>pg_dump (.dump)</option><option>SQL (.sql)</option><option>Comprimido (.gz)</option></select></div>
+  <div class="fg"><label>Retención</label><select><option>7 días</option><option>14 días</option><option>30 días</option></select></div>
+</div>
+<div style="display:flex;gap:8px;margin-top:8px">
+  <button class="btn bp" onclick="closeModal()"><i class="ti ti-database-export"></i> Iniciar backup</button>
+  <button class="btn" onclick="closeModal()">Cancelar</button>
+</div>`);
+}
+
+// ── PLANS ──
+function mNewPlan(){
+  openModal('Nuevo plan',`
+<div class="fr">
+  <div class="fg"><label>Nombre</label><input type="text" placeholder="Business"></div>
+  <div class="fg"><label>Precio ($/mes)</label><input type="number" placeholder="199"></div>
+</div>
+<div class="fr">
+  <div class="fg"><label>RAM (MB)</label><input type="number" placeholder="3072"></div>
+  <div class="fg"><label>Disco (GB)</label><input type="number" placeholder="30"></div>
+</div>
+<div class="fg"><label>Descripción</label><input type="text" placeholder="Para empresas en crecimiento"></div>
+<div style="display:flex;gap:8px;margin-top:10px">
+  <button class="btn bp" onclick="closeModal()"><i class="ti ti-check"></i> Crear plan</button>
+  <button class="btn" onclick="closeModal()">Cancelar</button>
+</div>`);
+}
+
+function mEditPlan(id){
+  const p=S.plans.find(x=>x.id===id);
+  openModal('Editar plan: '+p.name,`
+<div class="fr">
+  <div class="fg"><label>Nombre</label><input type="text" value="${p.name}"></div>
+  <div class="fg"><label>Precio ($/mes)</label><input type="number" value="${p.price}"></div>
+</div>
+<div class="fr">
+  <div class="fg"><label>RAM (MB)</label><input type="number" value="${p.ram}"></div>
+  <div class="fg"><label>Disco (GB)</label><input type="number" value="${p.disk}"></div>
+</div>
+<div class="fg"><label>Descripción</label><input type="text" value="${p.desc}"></div>
+<div style="display:flex;gap:8px;margin-top:10px">
+  <button class="btn bp" onclick="closeModal()"><i class="ti ti-check"></i> Guardar</button>
+  <button class="btn" onclick="closeModal()">Cancelar</button>
+</div>`);
+}
+
+// ── QR EDIT ──
+function mEditQR(){
+  openModal('Configurar QR de cobro',`
+<div style="display:flex;gap:6px;margin-bottom:14px;background:var(--bg3);padding:4px;border-radius:var(--r)">
+  <button id="qrTabGen" class="btn${S.qrMode==='generate'?' bp':''}" style="flex:1;font-size:12px;justify-content:center" onclick="switchQRTab('generate')"><i class="ti ti-qrcode"></i> Generar QR</button>
+  <button id="qrTabImg" class="btn${S.qrMode==='image'?' bp':''}" style="flex:1;font-size:12px;justify-content:center" onclick="switchQRTab('image')"><i class="ti ti-photo"></i> Subir imagen</button>
+</div>
+<div id="qrTabGenBody" style="display:${S.qrMode==='generate'?'block':'none'}">
+  <div class="fr">
+    <div class="fg"><label>Banco</label><input type="text" id="qr_bank" value="${S.qr.bank}"></div>
+    <div class="fg"><label>Alias / Nombre</label><input type="text" id="qr_alias" value="${S.qr.alias}"></div>
+  </div>
+  <div class="fr">
+    <div class="fg"><label>Número de cuenta</label><input type="text" id="qr_acc" value="${S.qr.account}"></div>
+    <div class="fg"><label>Moneda</label><select id="qr_cur"><option ${S.qr.currency==='BOB'?'selected':''}>BOB</option><option ${S.qr.currency==='USD'?'selected':''}>USD</option></select></div>
+  </div>
+  <div style="background:var(--bg3);border-radius:var(--r);padding:12px;text-align:center;margin-bottom:12px">
+    <div style="font-size:12px;color:var(--t2);margin-bottom:8px">Vista previa</div>
+    <div class="qr-gen qr-box" style="display:inline-block"></div>
+  </div>
+</div>
+<div id="qrTabImgBody" style="display:${S.qrMode==='image'?'block':'none'}">
+  <div class="qr-upload" onclick="document.getElementById('qrFileIn').click()">
+    <input type="file" id="qrFileIn" accept="image/*" onchange="previewQRImage(this)">
+    ${S.qrMode==='image'&&S.qrImageDataUrl
+      ?`<img src="${S.qrImageDataUrl}" class="qr-img-preview" style="margin:0 auto 8px">`
+      :`<i class="ti ti-photo" style="font-size:32px;color:var(--t3);display:block;margin-bottom:8px"></i>`}
+    <div style="font-size:13px;color:var(--t2)">${S.qrMode==='image'&&S.qrImageDataUrl?'Haz clic para cambiar la imagen':'Haz clic para subir tu imagen QR'}</div>
+    <div style="font-size:11px;color:var(--t3);margin-top:4px">PNG, JPG, WebP · máx. 2MB</div>
+  </div>
+  <div id="qrImgPreview" style="text-align:center;margin-top:10px;display:${S.qrMode==='image'&&S.qrImageDataUrl?'block':'none'}">
+    <img id="qrImgPrev" src="${S.qrImageDataUrl||''}" style="max-width:120px;max-height:120px;border-radius:var(--r);border:1px solid var(--bo)">
+    <div style="font-size:12px;color:var(--ok);margin-top:5px"><i class="ti ti-check" style="margin-right:3px"></i>Imagen lista</div>
+  </div>
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+  <button class="btn bp" onclick="saveQR()"><i class="ti ti-check"></i> Guardar QR</button>
+  <button class="btn" onclick="closeModal()">Cancelar</button>
+</div>`);
+}
+
+function switchQRTab(tab){
+  S.qrMode=tab;
+  document.getElementById('qrTabGen').className='btn'+(tab==='generate'?' bp':'');
+  document.getElementById('qrTabImg').className='btn'+(tab==='image'?' bp':'');
+  document.getElementById('qrTabGenBody').style.display=tab==='generate'?'block':'none';
+  document.getElementById('qrTabImgBody').style.display=tab==='image'?'block':'none';
+  if(tab==='generate')setTimeout(genQRs,100);
+}
+
+function previewQRImage(input){
+  const f=input.files[0];
+  if(!f)return;
+  if(f.size>2*1024*1024){alert('La imagen no debe superar 2MB');return;}
+  const rd=new FileReader();
+  rd.onload=e=>{
+    S.qrImageDataUrl=e.target.result;
+    const prev=document.getElementById('qrImgPrev');
+    const prevD=document.getElementById('qrImgPreview');
+    if(prev){prev.src=S.qrImageDataUrl;prevD.style.display='block';}
+  };
+  rd.readAsDataURL(f);
+}
+
+function saveQR(){
+  if(S.qrMode==='generate'){
+    const g=id=>document.getElementById(id)?.value;
+    if(g('qr_bank'))S.qr.bank=g('qr_bank');
+    if(g('qr_alias'))S.qr.alias=g('qr_alias');
+    if(g('qr_acc'))S.qr.account=g('qr_acc');
+    if(g('qr_cur'))S.qr.currency=g('qr_cur');
+  }
+  closeModal();render();
+}
+
+// ── PAYMENTS ──
+function mRegPay(){
+  openModal('Registrar pago',`
+<div class="fr">
+  <div class="fg"><label>Empresa</label><select id="rp_co">${S.companies.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
+  <div class="fg"><label>Monto ($)</label><input type="number" id="rp_amt" placeholder="149"></div>
+</div>
+<div class="fr">
+  <div class="fg"><label>Fecha</label><input type="date" id="rp_date" value="${new Date().toISOString().slice(0,10)}"></div>
+  <div class="fg"><label>Referencia</label><input type="text" id="rp_ref" placeholder="TRF-0001"></div>
+</div>
+<div class="fg"><label>Nota</label><input type="text" id="rp_note" placeholder="Pago QR"></div>
+<div class="fg"><label>Estado inicial</label><select id="rp_st"><option value="pending">Pendiente</option><option value="approved">Aprobado</option></select></div>
+<div style="display:flex;gap:8px;margin-top:10px">
+  <button class="btn bp" onclick="saveRegPay()"><i class="ti ti-check"></i> Guardar</button>
+  <button class="btn" onclick="closeModal()">Cancelar</button>
+</div>`);
+}
+
+function saveRegPay(){
+  const g=id=>document.getElementById(id)?.value;
+  const cid=parseInt(g('rp_co'));
+  const co=S.companies.find(x=>x.id===cid);
+  S.payments.push({
+    id:'PAY-'+(S._nextPid++).toString().padStart(3,'0'),
+    cid,company:co?.name||'—',plan:co?.plan||'—',
+    amount:parseFloat(g('rp_amt'))||0,
+    date:g('rp_date')||new Date().toISOString().slice(0,10),
+    ref:g('rp_ref')||'',status:g('rp_st')||'pending',
+    voucher:'',note:g('rp_note')||'',
+  });
+  closeModal();render();
+}
+
+function mPayDetail(id){
+  const p=S.payments.find(x=>x.id===id);
+  openModal('Detalle: '+p.id,`
+<div class="dbr"><span style="color:var(--t2)">Empresa</span><span>${p.company}</span></div>
+<div class="dbr"><span style="color:var(--t2)">Plan</span><span>${p.plan}</span></div>
+<div class="dbr"><span style="color:var(--t2)">Monto</span><span style="font-weight:600">$${p.amount}</span></div>
+<div class="dbr"><span style="color:var(--t2)">Fecha</span><span>${p.date}</span></div>
+<div class="dbr"><span style="color:var(--t2)">Referencia</span><span>${p.ref||'—'}</span></div>
+<div class="dbr"><span style="color:var(--t2)">Estado</span>${pbadge(p.status)}</div>
+<div class="dbr" style="border-bottom:none"><span style="color:var(--t2)">Nota</span><span style="font-size:12px">${p.note}</span></div>
+<div style="margin-top:14px"><button class="btn" onclick="closeModal()">Cerrar</button></div>`);
+}
+
+function mMsgCo(cid){
+  const c=S.companies.find(x=>x.id===cid);
+  const waMsg=encodeURIComponent(`Hola ${c.name}, desde NRAM360. Necesitamos el comprobante de pago para aprobar tu renovación. Por favor súbelo desde tu panel de cliente. Gracias.`);
+  openModal('Contactar empresa',`
+<div class="fg"><label>Empresa</label><input type="text" value="${c.name}" readonly style="opacity:.7"></div>
+<div class="fg"><label>WhatsApp</label><input type="text" value="${c.wa||'No registrado'}" readonly style="opacity:.7"></div>
+<div class="fg"><label>Mensaje</label><textarea style="height:80px;resize:vertical">Hola ${c.name}, desde NRAM360. Necesitamos el comprobante de pago para aprobar tu renovación. Por favor súbelo desde tu panel. Gracias.</textarea></div>
+<div style="display:flex;gap:8px;margin-top:10px">
+  <a href="https://wa.me/${c.wa||'591'}?text=${waMsg}" target="_blank" style="text-decoration:none">
+    <button class="btn bwa"><i class="ti ti-brand-whatsapp"></i> Abrir WhatsApp</button>
+  </a>
+  <button class="btn" onclick="closeModal()">Cerrar</button>
+</div>`);
+}
+
+// ── TICKETS ──
+function mTixDetail(id){
+  const t=S.tickets.find(x=>x.id===id);
+  openModal('Ticket '+t.id,`
+<div style="font-size:14px;font-weight:600;margin-bottom:5px">${t.subject}</div>
+<div style="font-size:12px;color:var(--t2);margin-bottom:10px">${t.company} · ${t.date} · ${tbadge(t.status)}</div>
+<div style="background:var(--bg3);padding:12px;border-radius:var(--r);font-size:13px;margin-bottom:13px">${t.msg}</div>
+<div class="fg"><label>Respuesta</label><textarea style="height:64px;resize:vertical" placeholder="Escribe tu respuesta…"></textarea></div>
+<div style="display:flex;gap:8px;margin-top:8px">
+  <button class="btn bp" onclick="closeModal()"><i class="ti ti-send"></i> Responder</button>
+  <button class="btn bsuc" onclick="S.tickets.find(x=>x.id==='${id}').status='closed';closeModal();render()"><i class="ti ti-check"></i> Resolver</button>
+  <button class="btn" onclick="closeModal()">Cerrar</button>
+</div>`);
+}
+
+function mNewTix(){
+  const co=getCo();
+  openModal('Nuevo ticket',`
+<div class="fg"><label>Asunto</label><input type="text" id="nt_sub" placeholder="Describe el problema"></div>
+<div class="fr">
+  <div class="fg"><label>Prioridad</label><select id="nt_pri"><option value="low">Baja</option><option value="mid">Media</option><option value="high">Alta</option></select></div>
+  <div class="fg"><label>Categoría</label><select><option>Técnico</option><option>Pago</option><option>Dominio</option><option>Recursos</option><option>Otro</option></select></div>
+</div>
+<div class="fg"><label>Descripción</label><textarea id="nt_msg" style="height:80px;resize:vertical" placeholder="Detalla el problema…"></textarea></div>
+<div style="display:flex;gap:8px;margin-top:8px">
+  <button class="btn bp" onclick="saveNewTix()"><i class="ti ti-send"></i> Enviar al admin</button>
+  <button class="btn" onclick="closeModal()">Cancelar</button>
+</div>`);
+}
+
+function saveNewTix(){
+  const co=getCo();
+  const sub=document.getElementById('nt_sub')?.value||'Sin asunto';
+  const msg=document.getElementById('nt_msg')?.value||'';
+  const pri=document.getElementById('nt_pri')?.value||'low';
+  S.tickets.push({
+    id:'TK-'+(S._nextTid++).toString().padStart(3,'0'),
+    cid:co.id,company:co.name,subject:sub,status:'open',
+    priority:pri,date:new Date().toISOString().slice(0,10),msg,
+  });
+  closeModal();render();
+}
+
+// ── VOUCHER UPLOAD ──
+function mUploadVoucher(){
+  openModal('Subir comprobante',`
+<div class="qr-upload" onclick="document.getElementById('vIn').click()">
+  <input type="file" id="vIn" accept="image/*,.pdf">
+  <i class="ti ti-upload" style="font-size:30px;color:var(--t3);display:block;margin-bottom:8px"></i>
+  <div style="font-size:13px;color:var(--t2)">Toca para seleccionar archivo</div>
+  <div style="font-size:11px;color:var(--t3);margin-top:4px">Imagen o PDF del comprobante</div>
+</div>
+<div class="fg" style="margin-top:10px"><label>Referencia / Nro. transacción</label><input type="text" placeholder="TRF-9999"></div>
+<div class="fg"><label>Nota adicional</label><input type="text" placeholder="Pago mes mayo 2025"></div>
+<div class="wbox" style="margin-bottom:12px"><i class="ti ti-clock" style="margin-right:5px"></i>Quedará en estado <b>Pendiente</b> hasta aprobación del admin.</div>
+<div style="display:flex;gap:8px">
+  <button class="btn bp" onclick="closeModal()"><i class="ti ti-send"></i> Enviar al admin</button>
+  <button class="btn" onclick="closeModal()">Cancelar</button>
+</div>`);
+}
+document.addEventListener('DOMContentLoaded',()=>checkAutoLogin());
+</script>
+</body>
+</html>
